@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "../hooks";
-import { checkingAuthentication } from "../store/auth/thunks";
-import { useAppDispatch, useAppSelector } from "../hooks/useAppDispatch";
+import { checkingAuthentication, startGoogleSignIn } from "../store/auth/thunks";
+import { useAppDispatch } from "../hooks/useAppDispatch";
 
 export default function Login() {
     const dispatch = useAppDispatch()
@@ -15,11 +15,13 @@ export default function Login() {
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         console.log({ email, password })
+        dispatch(checkingAuthentication({ email, password }));
     }
 
     const onGoogleSignIn = () => {
         console.log('onGoogleSignIn')
-        dispatch(checkingAuthentication({ email, password }));
+        dispatch(startGoogleSignIn());
+
     }
 
     return (
