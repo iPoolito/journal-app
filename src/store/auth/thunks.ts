@@ -1,7 +1,6 @@
-import { async } from "@firebase/util"
 import { Dispatch } from "@reduxjs/toolkit"
 import { signInWithGoogle } from "../../firebase/providers"
-import { checkingCredentials } from "./authSlice"
+import { checkingCredentials, logout, login } from "./authSlice"
 
 type AuthProps = {
     email: string,
@@ -19,6 +18,8 @@ export const startGoogleSignIn = () => {
     return async (dispatch: Dispatch) => {
         dispatch(checkingCredentials())
         const result = await signInWithGoogle()
-        console.log({ result })
+        if (!result.ok) return dispatch(logout(result.errorMessage))
+        dispatch(login(result))
+
     }
 }
