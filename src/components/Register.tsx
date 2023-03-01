@@ -1,8 +1,17 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "../hooks";
-import { checkingAuthentication, startGoogleSignIn } from "../store/auth/thunks";
 import { useAppDispatch, useAppSelector } from "../hooks/useAppDispatch";
+
+const formData = {
+    email: '',
+    password: '',
+    displayName: ''
+}
+
+type Clicked = {
+    [key: string]: boolean;
+};
 
 const formValidations = {
 
@@ -12,27 +21,31 @@ const formValidations = {
 
 }
 
-export default function Login() {
+export default function Register() {
     const dispatch = useAppDispatch()
-    const { status } = useAppSelector(state => state.auth)
-    const { email, password, onInputChange } = useForm({
-        email: '',
-        password: ''
-    }, formValidations)
 
+    const [clicked, setClicked] = useState<Clicked>({
+        email: false,
+        password: false,
+        displayName: false
+    });
+
+    const { status } = useAppSelector(state => state.auth)
+    const { formState, displayName, email, password, onInputChange, displayNameValid, emailValid, passwordValid } = useForm(formData, formValidations)
     const isAuthenticating = useMemo(() => status === 'checking', [status])
 
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        console.log({ email, password })
-        dispatch(checkingAuthentication({ email, password }));
+        console.log({ formState })
+        // dispatch(checkingAuthentication({ email, password }));
     }
-
-    const onGoogleSignIn = () => {
-        console.log('onGoogleSignIn')
-        dispatch(startGoogleSignIn());
-
-    }
+    const handleClick = (e: React.FormEvent<HTMLInputElement>) => {
+        const { name } = e.currentTarget;
+        setClicked((prevClicked) => ({
+            ...prevClicked,
+            [name]: !prevClicked[name],
+        }));
+    };
 
     return (
         <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -49,6 +62,31 @@ export default function Login() {
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
                     <form className="space-y-6" onSubmit={onSubmit}>
+
+
+                        <div>
+                            <label
+                                htmlFor="displayName"
+                                className="block text-sm font-medium text-gray-700"
+                            >
+                                Name
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="displayName"
+                                    name="displayName"
+                                    type="text"
+                                    autoComplete="displayName"
+                                    // required
+                                    onFocus={handleClick}
+                                    onChange={onInputChange}
+                                    value={displayName}
+                                    className={!displayNameValid ? "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" : "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"}
+                                />
+                                {displayNameValid && clicked['displayName'] && <p className="text-red-500">{displayNameValid}</p>}
+                            </div>
+                        </div>
+
                         <div>
                             <label
                                 htmlFor="email"
@@ -63,11 +101,13 @@ export default function Login() {
                                     type="email"
                                     autoComplete="email"
                                     placeholder="email@gmail.com"
-                                    required
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    // required
+                                    className={!emailValid ? "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" : "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"}
+                                    onFocus={handleClick}
                                     onChange={onInputChange}
                                     value={email}
                                 />
+                                {emailValid && clicked['email'] && <p className="text-red-500">{emailValid}</p>}
                             </div>
                         </div>
 
@@ -84,11 +124,13 @@ export default function Login() {
                                     name="password"
                                     type="password"
                                     autoComplete="current-password"
-                                    required
+                                    // required
+                                    onFocus={handleClick}
                                     onChange={onInputChange}
                                     value={password}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    className={!passwordValid ? "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" : "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"}
                                 />
+                                {passwordValid && clicked['password'] && <p className="text-red-500">{passwordValid}</p>}
                             </div>
                         </div>
 
@@ -110,10 +152,10 @@ export default function Login() {
 
                             <div className="text-sm">
                                 <Link
-                                    to="/auth/register"
+                                    to="/auth/login"
                                     className="font-medium text-indigo-600 hover:text-indigo-500"
                                 >
-                                    Create an Account
+                                    Already have an account? login
                                 </Link>
                             </div>
                         </div>
@@ -124,29 +166,10 @@ export default function Login() {
                                 type="submit"
                                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                             >
-                                Login
+                                Register
                             </button>
                         </div>
                     </form>
-
-                    <div className="mt-6" hidden={isAuthenticating}>
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-300" />
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-white text-gray-500">
-                                    Or continue with
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 grid justify-center ">
-                            <div onClick={onGoogleSignIn}>
-                                <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" width="64" height="64"><defs><path id="A" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z" /></defs><clipPath id="B"><use xlinkHref="#A" /></clipPath><g transform="matrix(.727273 0 0 .727273 -.954545 -1.45455)"><path d="M0 37V11l17 13z" clip-path="url(#B)" fill="#fbbc05" /><path d="M0 11l17 13 7-6.1L48 14V0H0z" clip-path="url(#B)" fill="#ea4335" /><path d="M0 37l30-23 7.9 1L48 0v48H0z" clip-path="url(#B)" fill="#34a853" /><path d="M48 48L17 24l-4-3 35-10z" clip-path="url(#B)" fill="#4285f4" /></g></svg>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

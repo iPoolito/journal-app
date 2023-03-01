@@ -1,4 +1,5 @@
 import Login from "../../components/Login";
+import Register from "../../components/Register";
 
 type AuthLayoutProps = {
   login: boolean;
@@ -7,7 +8,7 @@ type AuthLayoutProps = {
 export function AuthLayout({ login }: AuthLayoutProps) {
   return (
     <>
-      {login ? <Login /> : null}
+      {login ? <Login /> : <Register />}
     </>
   );
 }
