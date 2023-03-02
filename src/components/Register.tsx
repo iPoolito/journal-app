@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "../hooks";
 import { useAppDispatch, useAppSelector } from "../hooks/useAppDispatch";
+import { startCreatingUserWithEmailPassword } from "../store/auth/thunks";
 
 const formData = {
     email: '',
@@ -9,9 +10,7 @@ const formData = {
     displayName: ''
 }
 
-type Clicked = {
-    [key: string]: boolean;
-};
+
 
 const formValidations = {
 
@@ -24,32 +23,30 @@ const formValidations = {
 export default function Register() {
     const dispatch = useAppDispatch()
 
-    const [clicked, setClicked] = useState<Clicked>({
-        email: false,
-        password: false,
-        displayName: false
-    });
+
+    const [formSubmited, setFormSubmitred] = useState(false)
+
+
 
     const { status } = useAppSelector(state => state.auth)
-    const { formState, displayName, email, password, onInputChange, displayNameValid, emailValid, passwordValid } = useForm(formData, formValidations)
+    const { formState, displayName, email, password, onInputChange, displayNameValid, emailValid, passwordValid, isFormValid } = useForm(formData, formValidations)
     const isAuthenticating = useMemo(() => status === 'checking', [status])
 
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        console.log({ formState })
+        setFormSubmitred(true)
+
+        if (!isFormValid) return
+        dispatch(startCreatingUserWithEmailPassword({ email, password, displayName }))
+
         // dispatch(checkingAuthentication({ email, password }));
     }
-    const handleClick = (e: React.FormEvent<HTMLInputElement>) => {
-        const { name } = e.currentTarget;
-        setClicked((prevClicked) => ({
-            ...prevClicked,
-            [name]: !prevClicked[name],
-        }));
-    };
+
 
     return (
         <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                <h1>Form Valid {isFormValid ? 'Validio' : 'Incorrecto'}</h1>
                 <img
                     className="mx-auto h-12 w-auto"
                     src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
@@ -78,12 +75,11 @@ export default function Register() {
                                     type="text"
                                     autoComplete="displayName"
                                     // required
-                                    onFocus={handleClick}
                                     onChange={onInputChange}
                                     value={displayName}
                                     className={!displayNameValid ? "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" : "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"}
                                 />
-                                {displayNameValid && clicked['displayName'] && <p className="text-red-500">{displayNameValid}</p>}
+                                {displayNameValid && formSubmited && <p className="text-red-500">{displayNameValid}</p>}
                             </div>
                         </div>
 
@@ -103,11 +99,10 @@ export default function Register() {
                                     placeholder="email@gmail.com"
                                     // required
                                     className={!emailValid ? "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" : "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"}
-                                    onFocus={handleClick}
                                     onChange={onInputChange}
                                     value={email}
                                 />
-                                {emailValid && clicked['email'] && <p className="text-red-500">{emailValid}</p>}
+                                {emailValid && formSubmited && <p className="text-red-500">{emailValid}</p>}
                             </div>
                         </div>
 
@@ -125,12 +120,11 @@ export default function Register() {
                                     type="password"
                                     autoComplete="current-password"
                                     // required
-                                    onFocus={handleClick}
                                     onChange={onInputChange}
                                     value={password}
                                     className={!passwordValid ? "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" : "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"}
                                 />
-                                {passwordValid && clicked['password'] && <p className="text-red-500">{passwordValid}</p>}
+                                {passwordValid && formSubmited && <p className="text-red-500">{passwordValid}</p>}
                             </div>
                         </div>
 

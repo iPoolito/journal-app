@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 type FormValidations = {
     [key: string]: (string | ((value: string) => boolean))[]
@@ -23,6 +23,15 @@ export const useForm = <T extends InitialForm>(
 ): HookFrom<T> => {
     const [formState, setFormState] = useState(initialForm);
     const [formValidation, setFormValidation] = useState<FormValues<T>>({} as FormValues<T>);
+
+
+    const isFormValid = useMemo(() => {
+        for (const formValue of Object.keys(formValidation)) {
+            if (formValidation[formValue]) return false
+        }
+        return true
+    }, [formValidation])
+
 
     useEffect(() => {
         createValidators();
@@ -55,6 +64,7 @@ export const useForm = <T extends InitialForm>(
         }
 
         setFormValidation(formCheckValues as FormValues<T>);
+
     };
     return {
         ...formState,
@@ -62,5 +72,6 @@ export const useForm = <T extends InitialForm>(
         onInputChange,
         onResetForm,
         ...formValidation,
+        isFormValid
     } as HookFrom<T>;
 };

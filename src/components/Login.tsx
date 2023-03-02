@@ -6,9 +6,9 @@ import { useAppDispatch, useAppSelector } from "../hooks/useAppDispatch";
 
 const formValidations = {
 
-    email: [(value: string) => value.includes('@'), 'Email should have @'],
-    password: [(value: string) => value.length >= 6, 'Password shoul have 6 characters'],
-    displayName: [(value: string) => value.length >= 1, 'Name is required']
+    email: [(value: string) => value?.includes('@'), 'Email should have @'],
+    password: [(value: string) => value?.length >= 6, 'Password shoul have 6 characters'],
+    displayName: [(value: string) => value?.length >= 1, 'Name is required']
 
 }
 
