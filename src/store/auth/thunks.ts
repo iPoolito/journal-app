@@ -1,6 +1,6 @@
 import type { RegisterPayload } from "../../types/Register"
 import { Dispatch } from "@reduxjs/toolkit"
-import { signInWithGoogle, registerUserWithEmailPassword } from "../../firebase/providers"
+import { signInWithGoogle, registerUserWithEmailPassword, signInWithEmailPassword } from "../../firebase/providers"
 import { checkingCredentials, logout, login } from "./authSlice"
 
 type AuthProps = {
@@ -29,8 +29,18 @@ export const startCreatingUserWithEmailPassword = ({ email, password, displayNam
     return async (dispatch: Dispatch) => {
         dispatch(checkingCredentials())
         const { ok, uid, photoURL, errorMessage } = await registerUserWithEmailPassword({ displayName, password, email });
-        if (!ok) return dispatch(logout({ errorMessage }))
+        if (!ok) return dispatch(logout(errorMessage))
         dispatch(login({ uid, displayName, email, photoURL }))
 
+    }
+}
+
+
+export const startLoginWithEmailPassword = ({ email, password }: Omit<RegisterPayload, "displayName">) => {
+    return async (dispatch: Dispatch) => {
+        dispatch(checkingCredentials())
+        const { ok, displayName, errorMessage, photoURL, uid } = await signInWithEmailPassword({ email, password })
+        if (!ok) return dispatch(logout(errorMessage))
+        dispatch(login({ uid, displayName, email, photoURL }))
     }
 }

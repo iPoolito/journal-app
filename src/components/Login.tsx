@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "../hooks";
-import { checkingAuthentication, startGoogleSignIn } from "../store/auth/thunks";
+import { startGoogleSignIn, startLoginWithEmailPassword } from "../store/auth/thunks";
 import { useAppDispatch, useAppSelector } from "../hooks/useAppDispatch";
 
 const formValidations = {
@@ -14,7 +14,7 @@ const formValidations = {
 
 export default function Login() {
     const dispatch = useAppDispatch()
-    const { status } = useAppSelector(state => state.auth)
+    const { status, errorMessage } = useAppSelector(state => state.auth)
     const { email, password, onInputChange } = useForm({
         email: '',
         password: ''
@@ -24,14 +24,11 @@ export default function Login() {
 
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        console.log({ email, password })
-        dispatch(checkingAuthentication({ email, password }));
+        dispatch(startLoginWithEmailPassword({ email, password }));
     }
 
     const onGoogleSignIn = () => {
-        console.log('onGoogleSignIn')
         dispatch(startGoogleSignIn());
-
     }
 
     return (
@@ -119,6 +116,7 @@ export default function Login() {
                         </div>
 
                         <div>
+                            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
                             <button
                                 disabled={isAuthenticating}
                                 type="submit"
