@@ -73,3 +73,7 @@ export const signInWithEmailPassword = async ({ email, password }: Omit<Register
         }
     }
 }
+
+export const logoutFirebase = async () => {
+    return await FirebaseAuth.signOut()
+}
