@@ -1,12 +1,14 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Note } from "../../types/Notes";
+
 
 
 export const journalSlice = createSlice({
     name: 'journal',
     initialState: {
-        isSaving: true,
+        isSaving: false,
         messageSaved: '',
-        notes: [],
+        notes: [] as Note[],
         active: null
         // active: {
         //     id: '1234',
@@ -17,11 +19,16 @@ export const journalSlice = createSlice({
         // }
     },
     reducers: {
-        addNewEmptyNote: (state, action) => {
-
+        savingNewNote: (state) => {
+            state.isSaving = true
+        },
+        addNewEmptyNote: (state, action: PayloadAction<Note>) => {
+            const note = action.payload
+            state.notes.push(note)
+            state.isSaving = false;
         },
         setActiveNote: (state, action) => {
-
+            state.active = action.payload;
         },
         setNotes: (state, action) => {
 
@@ -39,4 +46,4 @@ export const journalSlice = createSlice({
     }
 })
 //Action creator functions
-export const { addNewEmptyNote, setActiveNote, setNotes, deleteNoteById, setSaving, updateNote } = journalSlice.actions
+export const { addNewEmptyNote, setActiveNote, setNotes, deleteNoteById, setSaving, savingNewNote, updateNote } = journalSlice.actions
