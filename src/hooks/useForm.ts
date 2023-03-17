@@ -37,6 +37,10 @@ export const useForm = <T extends InitialForm>(
         createValidators();
     }, [formState]);
 
+    useEffect(() => {
+        setFormState(initialForm)
+    }, [initialForm])
+
     const onInputChange = ({ target }: React.FormEvent<HTMLInputElement>) => {
         const { name, value } = target as HTMLInputElement;
         setFormState({

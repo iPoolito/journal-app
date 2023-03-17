@@ -35,7 +35,6 @@ export const startLoadingNotes = () => {
     return async (dispatch: Dispatch, getState: () => RootState) => {
         const { uid } = getState().auth
         if (!uid) throw new Error('uid of the user doesnt exist.')
-        console.log(uid)
         const notes = await loadNotes(uid)
         dispatch(setNotes(notes))
     }

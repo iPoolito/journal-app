@@ -12,13 +12,14 @@ const formValidations = {
 
 }
 
+const formData = {
+    email: '',
+    password: ''
+}
 export default function Login() {
     const dispatch = useAppDispatch()
     const { status, errorMessage } = useAppSelector(state => state.auth)
-    const { email, password, onInputChange } = useForm({
-        email: '',
-        password: ''
-    }, formValidations)
+    const { email, password, onInputChange } = useForm(formData, formValidations)
 
     const isAuthenticating = useMemo(() => status === 'checking', [status])
 

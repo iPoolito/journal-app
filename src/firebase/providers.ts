@@ -31,7 +31,6 @@ export const signInWithGoogle = async () => {
 export const registerUserWithEmailPassword = async ({ email, password, displayName }: RegisterPayload) => {
     try {
         const result = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
-        console.log(result)
         const { uid, photoURL } = result.user
         if (FirebaseAuth.currentUser) {
             await updateProfile(FirebaseAuth.currentUser, { displayName });

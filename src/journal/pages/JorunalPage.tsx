@@ -11,13 +11,13 @@ export function JournalPage() {
   const onClickNewNote = () => {
     dispatch(startNewNote())
   }
-  console.log(isSaving)
+
   return (
     <div className="flex h-screen w-full mt-10">
       <SideBar />
       <div className="px-10 flex flex-col gap-10 py-10">
         <h1 className="text-3xl font-bold underline">Journal Page</h1>
-        {!!active ? <NoteView /> : <NothingSelected />}
+        {active ? <NoteView /> : <NothingSelected />}
         <div>
           <button
             onClick={onClickNewNote}
