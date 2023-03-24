@@ -1,19 +1,29 @@
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { useForm } from "../hooks"
-import { useAppSelector } from "../hooks/useAppDispatch"
+import { useAppDispatch, useAppSelector } from "../hooks/useAppDispatch"
+import { setActiveNote, startSaveNote } from "../store/journal"
 
 
 
 export default function NoteView() {
+    const dispatch = useAppDispatch()
     const { active: note } = useAppSelector(state => state.journal)
     let initialState = {}
     if (note) initialState = note
     const { body, title, date, onInputChange, formState } = useForm(initialState)
 
+    useEffect(() => {
+        dispatch(setActiveNote(formState))
+    }, [formState])
+
     const dateString = useMemo(() => {
         const newDate = new Date(date!);
         return newDate.toUTCString()
     }, [date])
+
+    const onSaveNote = () => {
+        dispatch(startSaveNote())
+    }
 
     return (
         <form className="space-y-8 divide-y divide-gray-200">
@@ -106,7 +116,8 @@ export default function NoteView() {
                         Cancel
                     </button>
                     <button
-                        type="submit"
+                        type="button"
+                        onClick={onSaveNote}
                         className="ml-3 inline-flex justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                         Save

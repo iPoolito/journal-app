@@ -1,7 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Note } from "../../types/Notes";
 
-
+type initialState = {
+    isSaving: boolean,
+    messageSaved: string,
+    notes: Note[],
+    active: Note | null
+}
 
 export const journalSlice = createSlice({
     name: 'journal',
@@ -17,7 +22,7 @@ export const journalSlice = createSlice({
         //     date: 12345,
         //     imageUrls: []
         // }
-    },
+    } as initialState,
     reducers: {
         savingNewNote: (state) => {
             state.isSaving = true
@@ -35,9 +40,18 @@ export const journalSlice = createSlice({
 
         },
         setSaving: (state) => {
-
+            state.isSaving = true
+            //TODO : mensaje de error.
         },
         updateNote: (state, action) => {
+            state.isSaving = false
+            state.notes = state.notes.map((note) => {
+                if (note.id === action.payload.id) {
+                    return action.payload
+                }
+                return note
+            })
+            //Todo: Mostrar mensaje de actualizacion
 
         },
         deleteNoteById: (state, action) => {

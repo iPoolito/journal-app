@@ -3,9 +3,7 @@ import { collection, doc, setDoc } from "firebase/firestore/lite"
 import { FirebaseDB } from "../../firebase/config"
 import { loadNotes } from "../../helpers"
 import { RootState } from "../store"
-import { addNewEmptyNote, savingNewNote, setActiveNote, setNotes } from "./journalSlice"
-
-
+import { addNewEmptyNote, savingNewNote, setActiveNote, setNotes, setSaving, updateNote } from "./journalSlice"
 
 export const startNewNote = () => {
 
@@ -37,5 +35,20 @@ export const startLoadingNotes = () => {
         if (!uid) throw new Error('uid of the user doesnt exist.')
         const notes = await loadNotes(uid)
         dispatch(setNotes(notes))
+    }
+}
+
+export const startSaveNote = () => {
+    return async (dispatch: Dispatch, getState: () => RootState) => {
+        dispatch(setSaving())
+        const { uid } = getState().auth
+        const { active: note } = getState().journal
+        if (!uid) throw new Error('uid of the user doesnt exist.')
+        if (!note) throw new Error('active note doesnt exist.')
+        const noteToFireStore = { ...note }
+        delete noteToFireStore.id
+        const docRef = doc(FirebaseDB, `${uid}/journal/notes/${note.id}`)
+        await setDoc(docRef, noteToFireStore, { merge: true })
+        dispatch(updateNote(note))
     }
 }
