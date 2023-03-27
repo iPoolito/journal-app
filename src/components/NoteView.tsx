@@ -1,4 +1,6 @@
 import { useEffect, useMemo } from "react"
+import Swal from "sweetalert2"
+import 'sweetalert2/dist/sweetalert2.css'
 import { useForm } from "../hooks"
 import { useAppDispatch, useAppSelector } from "../hooks/useAppDispatch"
 import { setActiveNote, startSaveNote } from "../store/journal"
@@ -7,7 +9,7 @@ import { setActiveNote, startSaveNote } from "../store/journal"
 
 export default function NoteView() {
     const dispatch = useAppDispatch()
-    const { active: note } = useAppSelector(state => state.journal)
+    const { active: note, messageSaved, isSaving } = useAppSelector(state => state.journal)
     let initialState = {}
     if (note) initialState = note
     const { body, title, date, onInputChange, formState } = useForm(initialState)
@@ -15,6 +17,12 @@ export default function NoteView() {
     useEffect(() => {
         dispatch(setActiveNote(formState))
     }, [formState])
+
+    useEffect(() => {
+        if (messageSaved.length > 0) {
+            Swal.fire('Nota acutalizada', messageSaved, 'success')
+        }
+    }, [messageSaved])
 
     const dateString = useMemo(() => {
         const newDate = new Date(date!);
@@ -116,6 +124,7 @@ export default function NoteView() {
                         Cancel
                     </button>
                     <button
+                        disabled={isSaving}
                         type="button"
                         onClick={onSaveNote}
                         className="ml-3 inline-flex justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
