@@ -1,7 +1,7 @@
 import { Dispatch } from "@reduxjs/toolkit"
 import { collection, doc, setDoc } from "firebase/firestore/lite"
 import { FirebaseDB } from "../../firebase/config"
-import { loadNotes } from "../../helpers"
+import { fileUpload, loadNotes } from "../../helpers"
 import { RootState } from "../store"
 import { addNewEmptyNote, savingNewNote, setActiveNote, setNotes, setSaving, updateNote } from "./journalSlice"
 
@@ -50,5 +50,15 @@ export const startSaveNote = () => {
         const docRef = doc(FirebaseDB, `${uid}/journal/notes/${note.id}`)
         await setDoc(docRef, noteToFireStore, { merge: true })
         dispatch(updateNote(note))
+    }
+}
+
+export const startUploadingFiles = (files: FileList | null) => {
+    return async (dispatch: Dispatch) => {
+        dispatch(setSaving())
+        if (files) {
+            await fileUpload(files[0])
+        }
+
     }
 }

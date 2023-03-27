@@ -1,10 +1,13 @@
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import Swal from "sweetalert2"
 import 'sweetalert2/dist/sweetalert2.css'
 import { useForm } from "../hooks"
 import { useAppDispatch, useAppSelector } from "../hooks/useAppDispatch"
-import { setActiveNote, startSaveNote } from "../store/journal"
+import { setActiveNote, startSaveNote, startUploadingFiles } from "../store/journal"
 
+interface HTMLInputEvent extends React.ChangeEvent<HTMLInputElement> {
+    target: HTMLInputElement & EventTarget;
+}
 
 
 export default function NoteView() {
@@ -13,6 +16,8 @@ export default function NoteView() {
     let initialState = {}
     if (note) initialState = note
     const { body, title, date, onInputChange, formState } = useForm(initialState)
+
+    const inputRef = useRef<any>(null)
 
     useEffect(() => {
         dispatch(setActiveNote(formState))
@@ -31,6 +36,12 @@ export default function NoteView() {
 
     const onSaveNote = () => {
         dispatch(startSaveNote())
+    }
+
+    const onFileInputChange = (event: HTMLInputEvent) => {
+        const files = event.target.files
+        if (files?.length === 0) return
+        dispatch(startUploadingFiles(files))
     }
 
     return (
@@ -89,6 +100,7 @@ export default function NoteView() {
                                         fill="none"
                                         viewBox="0 0 48 48"
                                         aria-hidden="true"
+                                        onClick={() => inputRef.current.click()}
                                     >
                                         <path
                                             d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
@@ -103,7 +115,7 @@ export default function NoteView() {
                                             className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
                                         >
                                             <span>Upload a file</span>
-                                            <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                                            <input id="file-upload" name="file-upload" type="file" className="sr-only" multiple onChange={onFileInputChange} disabled={isSaving} ref={inputRef} />
                                         </label>
                                         <p className="pl-1">or drag and drop</p>
                                     </div>
