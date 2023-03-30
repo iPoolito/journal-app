@@ -3,7 +3,8 @@ import Swal from "sweetalert2"
 import 'sweetalert2/dist/sweetalert2.css'
 import { useForm } from "../hooks"
 import { useAppDispatch, useAppSelector } from "../hooks/useAppDispatch"
-import { setActiveNote, startSaveNote, startUploadingFiles } from "../store/journal"
+import { setActiveNote, startDeletingNote, startSaveNote, startUploadingFiles } from "../store/journal"
+import ImageGallery from "./ImageGallery"
 
 interface HTMLInputEvent extends React.ChangeEvent<HTMLInputElement> {
     target: HTMLInputElement & EventTarget;
@@ -42,6 +43,10 @@ export default function NoteView() {
         const files = event.target.files
         if (files?.length === 0) return
         dispatch(startUploadingFiles(files))
+    }
+
+    const onDeleteNote = () => {
+        dispatch(startDeletingNote())
     }
 
     return (
@@ -89,6 +94,16 @@ export default function NoteView() {
                         </div>
 
                         <div className="sm:col-span-6">
+                            <button
+                                onClick={onDeleteNote}
+                                type="button"
+                                className="rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                            >
+                                Borrar Nota
+                            </button>
+                        </div>
+
+                        <div className="sm:col-span-6">
                             <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900">
                                 Cover photo
                             </label>
@@ -122,6 +137,9 @@ export default function NoteView() {
                                     <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
                                 </div>
                             </div>
+                        </div>
+                        <div className=" col-span-6">
+                            <ImageGallery images={note?.imageUrls} />
                         </div>
                     </div>
                 </div>

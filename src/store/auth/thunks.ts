@@ -2,6 +2,7 @@ import type { RegisterPayload } from "../../types/Register"
 import { Dispatch } from "@reduxjs/toolkit"
 import { signInWithGoogle, registerUserWithEmailPassword, signInWithEmailPassword, logoutFirebase } from "../../firebase/providers"
 import { checkingCredentials, logout, login } from "./authSlice"
+import { clearNotesLogout } from "../journal"
 
 type AuthProps = {
     email: string,
@@ -48,6 +49,7 @@ export const startLoginWithEmailPassword = ({ email, password }: Omit<RegisterPa
 export const startLogout = () => {
     return async (dispatch: Dispatch) => {
         await logoutFirebase()
+        dispatch(clearNotesLogout)
         dispatch(logout(null))
     }
 
